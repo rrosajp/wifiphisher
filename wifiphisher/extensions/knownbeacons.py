@@ -48,7 +48,7 @@ class Knownbeacons(object):
         :rtype: list
         """
 
-        beacons = list()
+        beacons = []
         essid = str()
         bssid = self.data.rogue_ap_mac
 
@@ -125,9 +125,7 @@ class Knownbeacons(object):
             clutters
         """
 
-        if self._msg:
-            return self._msg
-        return ["Sending known beacons..."]
+        return self._msg or ["Sending known beacons..."]
 
     def send_channels(self):
         """
