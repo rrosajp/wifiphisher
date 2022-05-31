@@ -113,12 +113,11 @@ class Wpspbc(object):
                     if wps_ie_array[pos] == 0x10 and wps_ie_array[pos
                                                                   + 1] == 0x12:
                         return True
-                    else:
-                        data_len = (
-                            wps_ie_array[pos + 2] << 8) + wps_ie_array[pos + 3]
-                        # jump to the next data element by adding
-                        # the len of type/length/data
-                        pos += (2 + 2 + data_len)
+                    data_len = (
+                        wps_ie_array[pos + 2] << 8) + wps_ie_array[pos + 3]
+                    # jump to the next data element by adding
+                    # the len of type/length/data
+                    pos += (2 + 2 + data_len)
                 break
             elt_section = elt_section.payload
         return False
@@ -175,37 +174,41 @@ class Wpspbc(object):
         :return: None
         :rtype: None
         """
-        if not self._is_supplicant_running:
-            self._is_supplicant_running = True
-            with open("/tmp/wpa_supplicant.conf", 'w') as conf:
-                conf.write("ctrl_interface=/var/run/wpa_supplicant\n")
-            try:
-                proc = subprocess.Popen(
-                    [
-                        'wpa_supplicant',
-                        '-i' + self._data.args.wpspbc_assoc_interface,
-                        '-Dnl80211', '-c/tmp/wpa_supplicant.conf'
-                    ],
-                    stdout=subprocess.PIPE)
-                time.sleep(2)
-                if proc.poll() is not None:
-                    logger.error("supplicant lunches fail!!")
-                proc = subprocess.Popen(
-                    ['wpa_cli', 'wps_pbc'], stdout=subprocess.PIPE)
-                output = proc.communicate()[0]
-                if 'OK' not in output:
-                    logger.error(
-                        "CONFIG_WPS should be ENABLED when compile wpa_supplicant!!"
-                    )
-                    kill_wpa_supplicant()
-                else:
-                    logger.info(
-                        "Start using wpa_supplicant to connect to WPS AccessPoint"
-                    )
-                    self._wps_timer = Timer(120.0, self.wps_timeout_handler)
-                    self._wps_timer.start()
-            except OSError:
-                logger.error("wpa_supplicant or wpa_cli are not installed!")
+        if self._is_supplicant_running:
+            return
+        self._is_supplicant_running = True
+        with open("/tmp/wpa_supplicant.conf", 'w') as conf:
+            conf.write("ctrl_interface=/var/run/wpa_supplicant\n")
+        try:
+            proc = subprocess.Popen(
+                [
+                    'wpa_supplicant',
+                    f'-i{self._data.args.wpspbc_assoc_interface}',
+                    '-Dnl80211',
+                    '-c/tmp/wpa_supplicant.conf',
+                ],
+                stdout=subprocess.PIPE,
+            )
+
+            time.sleep(2)
+            if proc.poll() is not None:
+                logger.error("supplicant lunches fail!!")
+            proc = subprocess.Popen(
+                ['wpa_cli', 'wps_pbc'], stdout=subprocess.PIPE)
+            output = proc.communicate()[0]
+            if 'OK' not in output:
+                logger.error(
+                    "CONFIG_WPS should be ENABLED when compile wpa_supplicant!!"
+                )
+                kill_wpa_supplicant()
+            else:
+                logger.info(
+                    "Start using wpa_supplicant to connect to WPS AccessPoint"
+                )
+                self._wps_timer = Timer(120.0, self.wps_timeout_handler)
+                self._wps_timer.start()
+        except OSError:
+            logger.error("wpa_supplicant or wpa_cli are not installed!")
 
     def wps_state_handler(self, packet):
         """
@@ -231,11 +234,8 @@ class Wpspbc(object):
                     self.set_wps_state(WPS_IDLE)
                     # start deauthing again
                     extensions.is_deauth_cont = True
-                # if users specify the wps association interface we start
-                # the automatic association here
-                else:
-                    if self._data.args.wpspbc_assoc_interface:
-                        self.wps_associate()
+                elif self._data.args.wpspbc_assoc_interface:
+                    self.wps_associate()
         if self._is_supplicant_running:
             is_assoc = self.is_associated()
             # if state is not CONNECTED and timer is not running

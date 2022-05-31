@@ -44,10 +44,11 @@ class Handshakeverify(object):
         return defaultdict(list)
 
     def send_output(self):
-        if self.key != "" and self.found:
-            return ["VALID KEY: " + self.key]
-        elif self.key != "" and not self.found:
-            return ["INVALID KEY ({})".format(self.key)]
+        if self.key != "":
+            if self.found:
+                return [f'VALID KEY: {self.key}']
+            else:
+                return ["INVALID KEY ({})".format(self.key)]
         return ["WAITING FOR WPA KEY POST (ESSID: {})".format(self.essid)]
 
     def on_exit(self):
@@ -57,10 +58,8 @@ class Handshakeverify(object):
     def psk_verify(self, *list_data):
         self.key = list_data[0]
 
-        keyfile = open(self.key_file_path, "w")
-        keyfile.write(self.key + "\n")
-        keyfile.close()
-        
+        with open(self.key_file_path, "w") as keyfile:
+            keyfile.write(self.key + "\n")
         command = '/bin/cowpatty -f "{}" -r "{}" -s "{}"'.format(self.key_file_path, self.capt_file, self.essid)
 
         self.found = False
@@ -70,9 +69,7 @@ class Handshakeverify(object):
         if "The PSK is" in output:
             self.found = True
 
-        if self.key != "" and self.found:
-            return 'success'
-        elif self.key != "" and not self.found:
-            return 'fail'
+        if self.key != "":
+            return 'success' if self.found else 'fail'
         return 'unknown'
 
