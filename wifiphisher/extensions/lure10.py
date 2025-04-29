@@ -52,7 +52,7 @@ class Lure10(object):
             this prototype is requirement
         """
 
-        beacons = list()
+        beacons = []
         bssid = str()
 
         # initiliate the _packets_to_send in first run

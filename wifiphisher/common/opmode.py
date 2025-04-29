@@ -69,89 +69,150 @@ class OpMode(object):
         if args.presharedkey and \
             (len(args.presharedkey) < 8 or
              len(args.presharedkey) > 64):
-            sys.exit('[' + constants.R + '-' + constants.W +
-                     '] Pre-shared key must be between 8 and 63 printable'
-                     'characters.')
+            sys.exit(
+                (
+                    f'[{constants.R}-{constants.W}'
+                    + '] Pre-shared key must be between 8 and 63 printable'
+                    'characters.'
+                )
+            )
 
-        if args.handshake_capture and not os.path.isfile(
-                args.handshake_capture):
-            sys.exit('[' + constants.R + '-' + constants.W +
-                     '] Handshake capture does not exist.')
-        elif args.handshake_capture and not handshakeverify.\
-                is_valid_handshake_capture(args.handshake_capture):
-            sys.exit('[' + constants.R + '-' + constants.W +
-                     '] Handshake capture does not contain valid handshake')
+
+        if args.handshake_capture:
+            if not os.path.isfile(args.handshake_capture):
+                sys.exit(
+                    (
+                        f'[{constants.R}-{constants.W}'
+                        + '] Handshake capture does not exist.'
+                    )
+                )
+
+            elif not handshakeverify.is_valid_handshake_capture(
+                args.handshake_capture
+            ):
+                sys.exit(
+                    (
+                        f'[{constants.R}-{constants.W}'
+                        + '] Handshake capture does not contain valid handshake'
+                    )
+                )
+
 
         if ((args.extensionsinterface and not args.apinterface) or
                 (not args.extensionsinterface and args.apinterface)) and \
                 not (args.noextensions and args.apinterface):
-            sys.exit('[' + constants.R + '-' + constants.W +
-                     '] --apinterface (-aI) and --extensionsinterface (-eI)'
-                     '(or --noextensions (-nE)) are used in conjuction.')
+            sys.exit(
+                (
+                    f'[{constants.R}-{constants.W}'
+                    + '] --apinterface (-aI) and --extensionsinterface (-eI)'
+                    '(or --noextensions (-nE)) are used in conjuction.'
+                )
+            )
+
 
         if args.noextensions and args.extensionsinterface:
-            sys.exit('[' + constants.R + '-' + constants.W +
-                     '] --noextensions (-nE) and --extensionsinterface (-eI)'
-                     'cannot work together.')
+            sys.exit(
+                (
+                    f'[{constants.R}-{constants.W}'
+                    + '] --noextensions (-nE) and --extensionsinterface (-eI)'
+                    'cannot work together.'
+                )
+            )
+
 
         if args.lure10_exploit and args.noextensions:
-            sys.exit('[' + constants.R + '-' + constants.W +
-                     '] --lure10-exploit (-lE) and --noextensions (-eJ)'
-                     'cannot work together.')
+            sys.exit(
+                (
+                    f'[{constants.R}-{constants.W}'
+                    + '] --lure10-exploit (-lE) and --noextensions (-eJ)'
+                    'cannot work together.'
+                )
+            )
+
 
         if args.lure10_exploit and not os.path.isfile(constants.LOCS_DIR +
                                                       args.lure10_exploit):
-            sys.exit('[' + constants.R + '-' + constants.W +
-                     '] Lure10 capture does not exist. Listing directory'
-                     'of captures: ' + str(os.listdir(constants.LOCS_DIR)))
+            sys.exit(
+                (
+                    f'[{constants.R}-{constants.W}'
+                    + '] Lure10 capture does not exist. Listing directory'
+                    'of captures: '
+                )
+                + str(os.listdir(constants.LOCS_DIR))
+            )
+
 
         if (args.mac_ap_interface and args.no_mac_randomization) or \
                 (args.mac_extensions_interface and args.no_mac_randomization):
             sys.exit(
-                '[' + constants.R + '-' + constants.W +
-                '] --no-mac-randomization (-iNM) cannot work together with'
-                '--mac-ap-interface or --mac-extensions-interface (-iDM)')
+                (
+                    f'[{constants.R}-{constants.W}'
+                    + '] --no-mac-randomization (-iNM) cannot work together with'
+                    '--mac-ap-interface or --mac-extensions-interface (-iDM)'
+                )
+            )
+
 
         if args.deauth_essid and args.noextensions:
             sys.exit(
-                '[' + constants.R + '-' + constants.W +
-                '] --deauth-essid (-dE) cannot work together with'
-                '--noextension (-nE)')
+                (
+                    f'[{constants.R}-{constants.W}'
+                    + '] --deauth-essid (-dE) cannot work together with'
+                    '--noextension (-nE)'
+                )
+            )
+
 
         # if args.deauth_essid is set we need the second card to
         # do the frequency hopping
         if args.deauth_essid and self._use_one_phy:
-            print(('[' + constants.R + '!' + constants.W +
-                  '] Only one card was found. Wifiphisher will deauth only '
-                  'on the target AP channel'))
+            print(
+                (
+                    f'[{constants.R}!{constants.W}'
+                    + '] Only one card was found. Wifiphisher will deauth only '
+                    'on the target AP channel'
+                )
+            )
+
 
         # args.wAI should be used with args.wE
         if args.wpspbc_assoc_interface and not args.wps_pbc:
             sys.exit(
-                '[' + constants.R + '!' + constants.W +
-                '] --wpspbc-assoc-interface (-wAI) requires --wps-pbc (-wP) option.'
+                (
+                    f'[{constants.R}!{constants.W}'
+                    + '] --wpspbc-assoc-interface (-wAI) requires --wps-pbc (-wP) option.'
+                )
             )
+
 
         # if args.logpath is defined args.logging must be set too
         if args.logpath and not args.logging:
             sys.exit(
-                '[' + constants.R + '!' + constants.W +
-                '] --logpath (-lP) requires --logging option.'
+                (
+                    f'[{constants.R}!{constants.W}'
+                    + '] --logpath (-lP) requires --logging option.'
+                )
             )
+
 
         # if args.credential_log_path is defined args.logging must be set too
         if args.credential_log_path and not args.logging:
             sys.exit(
-                '[' + constants.R + '!' + constants.W +
-                '] --credential-log-path (-cP) requires --logging option.'
+                (
+                    f'[{constants.R}!{constants.W}'
+                    + '] --credential-log-path (-cP) requires --logging option.'
+                )
             )
+
 
         if args.deauth_channels:
             for channel in args.deauth_channels:
                 if channel > 14 or channel < 0:
                     sys.exit(
-                        '[' + constants.R + '!' + constants.W +
-                        '] --deauth-channels (-dC) requires channels in range 1-14.'
+                        (
+                            f'[{constants.R}!{constants.W}'
+                            + '] --deauth-channels (-dC) requires channels in range 1-14.'
+                        )
                     )
 
         # If both args.mitminterface and args.internetinterface are provided, the
@@ -215,15 +276,7 @@ class OpMode(object):
         """
 
         if not args.internetinterface and not args.noextensions:
-            if not self._use_one_phy:
-                # check if there is WPS association interface
-                if args.wpspbc_assoc_interface:
-                    self.op_mode = constants.OP_MODE7
-                    logger.info("Starting OP_MODE7 (0x7)")
-                else:
-                    self.op_mode = constants.OP_MODE1
-                    logger.info("Starting OP_MODE1 (0x1)")
-            else:
+            if self._use_one_phy:
                 # TODO: We should not add any vifs here.
                 # These should happen after the interface 
                 # checks in main engine
@@ -236,6 +289,12 @@ class OpMode(object):
                 else:
                     self.op_mode = constants.OP_MODE5
                     logger.info("Starting OP_MODE5 (0x5)")
+            elif args.wpspbc_assoc_interface:
+                self.op_mode = constants.OP_MODE7
+                logger.info("Starting OP_MODE7 (0x7)")
+            else:
+                self.op_mode = constants.OP_MODE1
+                logger.info("Starting OP_MODE1 (0x1)")
         if args.internetinterface and not args.noextensions:
             if not self._use_one_phy:
                 self.op_mode = constants.OP_MODE2
